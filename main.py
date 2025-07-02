@@ -26,7 +26,7 @@ def main():
     manager = GroupChatManager(groupchat=group_chat, llm_config={"config_list": config})
 
     print("=== 🚀 GroupChat Market Analysis Workflow ===")
-    user_proxy.initiate_chat(manager, message="Generate a market analysis on the organic food industry in India")
+    user_proxy.initiate_chat(manager, message="Generate a market analysis on the handmade products in India.")
 
 if __name__ == "__main__":
     main()
