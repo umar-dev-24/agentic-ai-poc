@@ -1,15 +1,34 @@
-from autogen import AssistantAgent
+from autogen import ConversableAgent
+from tools.web_search_tool import duckduckgo_search, duckduckgo_tool
 
-def create_research_agent(config):
-    return AssistantAgent(
-        name="Researcher",
-        llm_config={"config_list": config},
-         system_message="""You are a research agent. Given a topic from your knowledge give points on the topic
-            Limit your response to a maximum of 600 words, not more than that strictly.
-            Make it structured and readable. End your message with 'research completed'.""",
+import os
+
+mistral_config = {
+    "config_list": [
+        {
+            "model": "mistral",
+            "base_url": "http://localhost:11434/v1",
+            "api_key": "ollama",
+            "api_type": "openai",
+        }
+    ]
+}
+
+
+def create_research_agent():
+    from llm.gemini_llm import llm_config_gemini
+
+    agent = ConversableAgent(
+        name="ResearchAgent",
+        llm_config=mistral_config,  # ✅ No config_list, no api_type
+        system_message=(
+            """ You are one of the agent in multi agentic AI group. You will be ordered a task and given a company name and asked to do a research on that. Your job is to do a research on that company using the tool given to you. Get the latest activities of that company as part of your research. Send the top 5 results of your research. Send your results once you are done and finish with a message 'My part is done'. If you are assigned the same task again and again, reject by saying I already did this task and I replied please check.you will be called by co ordinator agent to do the task in the group chat. You should do the task assigned and destined to you, do not talk unnecessarily """
+        ),
         human_input_mode="NEVER",
-        is_termination_msg=lambda msg: msg.get("content", "").strip().endswith("Research Complete."),
-        max_consecutive_auto_reply=1,
-        default_auto_reply="Passing research findings to the summarizer.",
+        max_consecutive_auto_reply=5,
         code_execution_config=False,
+        is_termination_msg=lambda x: False,
     )
+
+    agent.register_function({"duckduckgo_search": duckduckgo_search})
+    return agent
