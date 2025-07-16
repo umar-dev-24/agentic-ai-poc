@@ -67,7 +67,17 @@ def main():
                         name="CoordinatorAgent",
                         llm_config=mistral_llm_config,  # ✅ No config_list, no api_type
                         system_message=(
-                            """You are the coordinator agent. Your job is to read the task assigned to you and split it and order small task to agents that are available based on its capability. Order them to that task and get back the result.Once all agents are replied with their results and you think you have achieved the output for your task. You have three agents to work for you, research agent which will go through web for the data - run this agent first, analyst agent to provide SWOT analysis, summary agent to summarize the overall results - atlast after getting reseach results and SWOT results. Use them wisely and avoid repetative use of them."""
+                            """You are the coordinator agent.
+                                Your job is to read the instruction given to you and complete it using agents that are available based on its capability.
+                                Analyse the sentence or company name provided by the user and decide which agents to call based on the information needed.
+                                Based on the user input use the following if needed:Use the Research Agent to research about company and to get latest info, the Analyse Agent for SWOT analysis, and the Summarize Agent for drafting executive summary using other agents results,db agent that has access it to the database-It has details of the company, employees, projects, revenue, etc.
+                                Once all agents are replied with their results and you think you have achieved the output for your task. 
+                                Use them wisely and avoid repetative use of them.
+                                Each agent has its own tools and capabilities.
+                                Decide the order in which to call the agents , once you are done, return the result.
+                                Do not do the task yourselff, split the task and assign to concerned agent and make use of them.
+            
+"""
                         ),
                         human_input_mode="NEVER",
                         code_execution_config={"work_dir": ".", "use_docker": False},
