@@ -2,11 +2,14 @@ from agents.research_agent import create_research_agent
 from agents.analyst_agent import create_analyst_agent
 from agents.summarize_agent import create_summarizer_agent
 from agents.db_agent import create_db_agent, get_summary, store_summary
-from tools.web_search_tool import duckduckgo_tool
+from tools.web_search_tool import duckduckgo_search
+
+# from tools.web_search_tool import duckduckgo_tool
 from tools.swot_tool import swot_analysis_tool
 from autogen import ConversableAgent, GroupChat, GroupChatManager
 import streamlit as st
 import os
+from config import API_KEY
 from llm.gemini_llm import llm_config_gemini
 
 # External config for LLMs
@@ -26,9 +29,10 @@ gemini_llm_config = {
     "config_list": [
         {
             "model": "gemini-2.0-flash",
+            "api_key": API_KEY,  # ✅ Replace this or load from env
             "base_url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
-            "api_key": "AIzaSyBeGSgimqzyb5je9P8L97EfkVVhSeav3eU",  # ✅ Replace this with env var in production
             "api_type": "google",
+            "price": [0.0, 0.0],  # Optional to suppress cost warnings
         }
     ]
 }
@@ -36,7 +40,7 @@ gemini_llm_config = {
 
 def main():
     st.set_page_config(page_title="Agentic Market Analyzer", layout="wide")
-    st.title("📊 Agentic AI - Company Market Intelligence")
+    st.title("📊 Agentic AI - Company Market Intelligence- AUTOGEN")
 
     company = st.text_input("Enter a company name to analyze", "")
     submit = st.button("Analyze")
@@ -65,22 +69,33 @@ def main():
                     print("[DEBUG] Import UserProxyAgent")
                     coordinator_agent = ConversableAgent(
                         name="CoordinatorAgent",
-                        llm_config=mistral_llm_config,  # ✅ No config_list, no api_type
+                        llm_config=gemini_llm_config,  # ✅ No config_list, no api_type
+                        functions=[],
                         system_message=(
                             """You are the coordinator agent.
                                 Your job is to read the instruction given to you and complete it using agents that are available based on its capability.
                                 Analyse the sentence or company name provided by the user and decide which agents to call based on the information needed.
-                                Based on the user input use the following if needed:Use the Research Agent to research about company and to get latest info, the Analyse Agent for SWOT analysis, and the Summarize Agent for drafting executive summary using other agents results,db agent that has access it to the database-It has details of the company, employees, projects, revenue, etc.
-                                Once all agents are replied with their results and you think you have achieved the output for your task. 
+                                If you cant find a company name in input or input is irrelevant to any company then return 'Sorry I cant do that.'
+                                Based on the user input use the following if needed:Use the Research Agent to research about company and to get latest info, the Analyse Agent for SWOT analysis, and the Summarize Agent for drafting executive summary using other agents results.
+                                Once all agents are replied with their results and you think you have achieved the output for your task means executive summary for a company return as your response and end.. 
                                 Use them wisely and avoid repetative use of them.
                                 Each agent has its own tools and capabilities.
                                 Decide the order in which to call the agents , once you are done, return the result.
                                 Do not do the task yourselff, split the task and assign to concerned agent and make use of them.
+                                Once you are ready with a executive summary, return it as your response with a clear ending message 'task is now complete' from your side.
             
 """
                         ),
                         human_input_mode="NEVER",
                         code_execution_config={"work_dir": ".", "use_docker": False},
+                        is_termination_msg=lambda x: "task is now complete"
+                        in x.get("content", "").lower(),
+                    )
+                    coordinator_agent.register_for_llm(
+                        name="calculator", description="A simple calculator"
+                    )(duckduckgo_search)
+                    coordinator_agent.register_for_execution(name="calculator")(
+                        duckduckgo_search
                     )
                     print("✅ [DEBUG] CoordinatorAgent created")
 
@@ -92,12 +107,12 @@ def main():
                             analyst_agent,
                             summarizer_agent,
                         ],
-                        max_round=20,
+                        max_round=10,
                         admin_name="CoordinatorAgent",
                     )
                     manager = GroupChatManager(
                         groupchat=groupchat,
-                        llm_config=mistral_llm_config,  # ✅ No config_list, no api_type
+                        llm_config=gemini_llm_config,  # ✅ No config_list, no api_type
                     )
                     print("[DEBUG] GroupChatManager created")
 

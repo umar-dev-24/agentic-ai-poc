@@ -1,3 +1,5 @@
+# this file is not in use as of now
+
 from autogen import UserProxyAgent
 from tinydb import TinyDB, Query
 
@@ -24,7 +26,8 @@ def create_db_agent():
     agent = UserProxyAgent(
         name="DatabaseAgent",
         human_input_mode="NEVER",
-        system_message="You store the final summary into the database. Store only the 'summary' field against the given company name.",
+        system_message="You store the final summary into the database."
+        " Store only the 'summary' field against the given company name.",
         code_execution_config={"work_dir": ".", "use_docker": False},
     )
 

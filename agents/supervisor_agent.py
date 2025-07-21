@@ -1,5 +1,20 @@
 from autogen import ConversableAgent
 from llm.gemini_llm import llm_config_gemini
+from langchain_google_genai import ChatGoogleGenerativeAI
+from config import API_KEY
+
+llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", google_api_key=API_KEY)
+gemini_llm_config = {
+    "config_list": [
+        {
+            "model": "gemini-2.0-flash",
+            "api_key": API_KEY,  # ✅ Replace this or load from env
+            "base_url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+            "api_type": "google",
+            "price": [0.0, 0.0],  # Optional to suppress cost warnings
+        }
+    ]
+}
 
 
 def create_supervisor_agent():
@@ -18,7 +33,7 @@ def create_supervisor_agent():
 
     return ConversableAgent(
         name="SupervisorAgent",
-        llm_config=mistral_config,
+        llm_config=gemini_llm_config,  # ✅ No config_list, no api_type
         system_message=(
             "You are a Supervisor Agent that orchestrates multiple expert agents to get the user's job done.\n"
             "You may have a sentence about a company or just name of a company as the input.\n"
@@ -34,6 +49,6 @@ def create_supervisor_agent():
             "Once you receive the user input, you can call the agents in order to get the required information and return the final summary."
         ),
         human_input_mode="NEVER",
-        max_consecutive_auto_reply=5,
+        max_consecutive_auto_reply=2,
         code_execution_config=False,
     )
