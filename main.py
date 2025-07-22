@@ -91,13 +91,6 @@ def main():
                         is_termination_msg=lambda x: "task is now complete"
                         in x.get("content", "").lower(),
                     )
-                    coordinator_agent.register_for_llm(
-                        name="duckduckgo_search",
-                        description="Research tool for companies",
-                    )(duckduckgo_search)
-                    coordinator_agent.register_for_execution(name="duckduckgo_search")(
-                        duckduckgo_search
-                    )
                     print("✅ [DEBUG] CoordinatorAgent created")
 
                     print("\n📦 [DEBUG] Setting up GroupChat...")

@@ -58,10 +58,11 @@ def create_research_agent():
     # from tools.web_search_tool import duckduckgo_tool
     # agent.register_function(duckduckgo_search)
     # ✅ CORRECT
-    agent.register_for_llm(name="calculator", description="A simple calculator")(
-        duckduckgo_search
-    )
-    agent.register_for_execution(name="calculator")(duckduckgo_search)
+    agent.register_for_llm(
+        name="duckduckgo_search",
+        description="A tool to get latest information from web search using DuckDuckGo.",
+    )(duckduckgo_search)
+    agent.register_for_execution(name="duckduckgo_search")(duckduckgo_search)
 
     # agent.register_for_llm(
     #     name="duckduckgo_search",
