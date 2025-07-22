@@ -92,9 +92,10 @@ def main():
                         in x.get("content", "").lower(),
                     )
                     coordinator_agent.register_for_llm(
-                        name="calculator", description="A simple calculator"
+                        name="duckduckgo_search",
+                        description="Research tool for companies",
                     )(duckduckgo_search)
-                    coordinator_agent.register_for_execution(name="calculator")(
+                    coordinator_agent.register_for_execution(name="duckduckgo_search")(
                         duckduckgo_search
                     )
                     print("✅ [DEBUG] CoordinatorAgent created")
