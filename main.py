@@ -1,16 +1,10 @@
 from agents.research_agent import create_research_agent
 from agents.analyst_agent import create_analyst_agent
 from agents.summarize_agent import create_summarizer_agent
-from agents.db_agent import create_db_agent, get_summary, store_summary
-from tools.web_search_tool import duckduckgo_search
-
-# from tools.web_search_tool import duckduckgo_tool
-from tools.swot_tool import swot_analysis_tool
-from autogen import ConversableAgent, GroupChat, GroupChatManager
+from agents.db_agent import get_summary
 import streamlit as st
-import os
 from config import API_KEY
-from llm.gemini_llm import llm_config_gemini
+from autogen import ConversableAgent, GroupChat, GroupChatManager, logger
 
 # External config for LLMs
 
